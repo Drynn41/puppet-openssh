@@ -1,0 +1,180 @@
+
+#############
+#  Ports :  #
+#############
+
+<% @openssh_ports.each do |sshPort| -%>
+Port <%= sshPort %>
+<% end -%>
+
+#####################
+#  ListenAddress :  #
+#####################
+
+
+ListenAddress <%= @openssh_listenaddress %>
+
+################
+#  Protocol :  #
+################
+
+Protocol 2
+
+#######################
+#  Hostkey options :  #
+#######################
+
+#HostKeys for protocol version 2
+  HostKey /etc/ssh/ssh_host_rsa_key
+  HostKey /etc/ssh/ssh_host_dsa_key
+
+###############
+#  Logging :  #
+###############
+
+# obsoletes QuietMode and FascistLogging
+
+SyslogFacility AUTHPRIV
+LogLevel INFO
+
+###############################
+#   Authentication options :  #
+###############################
+
+LoginGraceTime <%= @openssh_logingracetime %>
+PermitRootLogin <%= @openssh_permitrootlogin %>
+StrictModes <%= @openssh_strictmodes %>
+MaxAuthTries <%= @openssh_maxauthtries %>
+MaxSessions <%= @openssh_maxsessions %>
+
+PubkeyAuthentication <%= @openssh_pubkeyauthentification %>
+
+AuthorizedKeysFile <%= @openssh_authorizedkeysfile %>
+AuthorizedKeysCommand <%= @openssh_authorizedkeyscommand %>
+AuthorizedKeysCommandUser <%= @openssh_authorizedkeyscommanduser %>
+
+# similar for protocol version 2
+HostbasedAuthentication no
+
+# Change to yes if you don't trust ~/.ssh/known_hosts for
+# RhostsRSAAuthentication and HostbasedAuthentication
+IgnoreUserKnownHosts yes
+
+# Don't read the user's ~/.rhosts and ~/.shosts files
+IgnoreRhosts yes
+
+# To disable tunneled clear text passwords, change to no here!
+PasswordAuthentication <%= @openssh_passwordauthentication %>
+PermitEmptyPasswords <%= @openssh_permitemptypasswords %>
+
+# Change to no to disable s/key passwords
+ChallengeResponseAuthentication no
+
+########################
+#  Kerberos options :  #
+########################
+
+KerberosOrLocalPasswd no
+#KerberosAuthentication no
+#KerberosTicketCleanup yes
+#KerberosGetAFSToken no
+#KerberosUseKuserok yes
+
+######################
+#  GSSAPI options :  #
+######################
+
+#GSSAPIAuthentication yes
+#GSSAPICleanupCredentials yes
+#GSSAPIStrictAcceptorCheck yes
+#GSSAPIKeyExchange no
+
+###################
+#  PAM options :  #
+###################
+
+# Set this to 'yes' to enable PAM authentication, account processing,
+# and session processing. If this is enabled, PAM authentication will
+# be allowed through the ChallengeResponseAuthentication and
+# PasswordAuthentication.  Depending on your PAM configuration,
+# PAM authentication via ChallengeResponseAuthentication may bypass
+# the setting of "PermitRootLogin without-password".
+# If you just want the PAM account and session checks to run without
+# PAM authentication, then enable this but set PasswordAuthentication
+# and ChallengeResponseAuthentication to 'no'.
+UsePAM <%= @openssh_usepam -%>
+
+#########################
+#  AcceptEnv options :  #
+#########################
+
+AcceptEnv LANG LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES
+AcceptEnv LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT
+AcceptEnv LC_IDENTIFICATION LC_ALL LANGUAGE
+AcceptEnv XMODIFIERS
+
+#####################
+#  Other options :  #
+#####################
+
+AllowAgentForwarding no
+AllowTcpForwarding no
+PermitOpen none
+GatewayPorts no
+X11Forwarding no
+X11DisplayOffset 10
+X11UseLocalhost yes
+PrintMotd yes
+PrintLastLog yes
+TCPKeepAlive yes
+
+PermitUserEnvironment no
+#Compression delayed
+ClientAliveInterval 300
+ClientAliveCountMax 3
+#ShowPatchLevel no
+#UseDNS yes
+#PidFile /var/run/sshd.pid
+#MaxStartups 10
+PermitTunnel no
+#ChrootDirectory none
+
+######################
+#  Banner options :  #
+######################
+
+# no default banner path
+Banner /etc/ssh/sshd-banner
+
+#########################
+#  Subsystem options :  #
+#########################
+
+Subsystem       sftp    internal-sftp
+
+##################################
+#  Ciphers and keying options :  #
+##################################
+
+#RekeyLimit default none
+
+######################
+# Match Group / User #
+######################
+
+# Example of overriding settings on a per-user basis
+#Match User anoncvs
+#       X11Forwarding no
+#       AllowTcpForwarding no
+#       ForceCommand cvs server
+
+###################
+# Custom options #
+###################
+
+<% @openssh_match.each do |matchArray| -%>
+Match <%= matchArray['type'] + ' ' + matchArray['lists'].join(',') -%>
+  <%- matchArray['options'].each do |optKey,optVal| %>
+    <%= optKey + ' ' + optVal -%>
+  <% end %>
+<% end -%>
